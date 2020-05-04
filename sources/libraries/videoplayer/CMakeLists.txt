@@ -53,9 +53,3 @@ target_include_directories(
   PUBLIC
   ${VIDEOPLAYER_LIB_INCLUDE_PATHS}
 )
-
-if(WIN32)
-  install(TARGETS ${LIBRARY_NAME}
-    RUNTIME DESTINATION .
-  )
-endif()

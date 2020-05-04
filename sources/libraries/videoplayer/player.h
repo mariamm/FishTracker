@@ -69,7 +69,6 @@ class QAudioProbe;
 QT_END_NAMESPACE
 
 class PlaylistModel;
-class HistogramWidget;
 
 
 #include "videoplayer_export.h"
@@ -103,7 +102,6 @@ private slots:
     void playlistPositionChanged(int);
 
     void statusChanged(QMediaPlayer::MediaStatus status);
-    void stateChanged(QMediaPlayer::State state);
     void bufferingProgress(int progress);
     void videoAvailableChanged(bool available);
 
@@ -112,7 +110,6 @@ private slots:
     void showColorDialog();
 
 private:
-    void clearHistogram();
     void setTrackInfo(const QString &info);
     void setStatusInfo(const QString &info);
     void handleCursor(QMediaPlayer::MediaStatus status);
@@ -129,12 +126,6 @@ private:
     QDialog *m_colorDialog = nullptr;
     QLabel *m_statusLabel = nullptr;
     QStatusBar *m_statusBar = nullptr;
-
-    QLabel *m_labelHistogram = nullptr;
-    HistogramWidget *m_videoHistogram = nullptr;
-    HistogramWidget *m_audioHistogram = nullptr;
-    QVideoProbe *m_videoProbe = nullptr;
-    QAudioProbe *m_audioProbe = nullptr;
 
     PlaylistModel *m_playlistModel = nullptr;
     QAbstractItemView *m_playlistView = nullptr;

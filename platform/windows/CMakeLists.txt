@@ -1,3 +1,19 @@
+# Copy library files to installed directory
+install(TARGETS
+    ${CMAKE_PROJECT_NAME}
+    imageprocessing
+    videoplayer
+    DESTINATION .
+    CONFIGURATIONS Debug
+)
+install(TARGETS
+    ${CMAKE_PROJECT_NAME}
+    imageprocessing
+    videoplayer
+    DESTINATION .
+    CONFIGURATIONS Release
+)
+
 # Qt Libraries
 install(FILES
   $<TARGET_FILE:Qt5::Core>

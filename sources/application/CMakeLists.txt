@@ -49,88 +49,14 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
   videoplayer
 )
 
-# Ensure windows.h does not define min and max macros
 if(WIN32)
-  add_definitions(-DNOMINMAX)
-endif()
-
-if(WIN32)
-  install(TARGETS ${CMAKE_PROJECT_NAME}
+ install(TARGETS ${CMAKE_PROJECT_NAME}
     RUNTIME DESTINATION .
   )
 endif()
 
-# install(FILES ${QML_FILES}
-  # DESTINATION .
-  # CONFIGURATIONS Debug Release
-# )
-
-# install(FILES ${RESOURCE_SOURCES}
-  # DESTINATION .
-  # CONFIGURATIONS Debug Release
-# )
-
-
-if (MSVC)
-  # Post-Build Step: Copy DEBUG OpenCV DLLs to Runtime directory
-  foreach(file ${OPENCV_DLLS_DEBUG})
-    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-      COMMAND if 1==$<CONFIG:Debug> ${CMAKE_COMMAND} -E copy_if_different
-      ${file}
-      $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
-      COMMENT "Copying file to Runtime directory: " ${file}
-    )
-  endforeach()
-  foreach(file ${OPENCV_PDBS_DEBUG})
-    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-      COMMAND if 1==$<CONFIG:Debug> ${CMAKE_COMMAND} -E copy_if_different
-      ${file}
-      $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
-      COMMENT "Copying file to Runtime directory: " ${file}
-    )
-  endforeach()
-
-  # Post-Build Step: Copy RELEASE OpenCV DLLs to Runtime directory
-  foreach(file ${OPENCV_DLLS_RELEASE})
-    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-      COMMAND if 1==$<CONFIG:Release> ${CMAKE_COMMAND} -E copy_if_different
-      ${file}
-      $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
-      COMMENT "Copying file to Runtime directory: " ${file}
-    )
-  endforeach()
-  foreach(file ${OPENCV_PDBS_RELEASE})
-    add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-      COMMAND if 1==$<CONFIG:Release> ${CMAKE_COMMAND} -E copy_if_different
-      ${file}
-      $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
-      COMMENT "Copying file to Runtime directory: " ${file}
-    )
-  endforeach()
-
-  # Post-Build Step: Copy imported library file to Runtime directory
-  add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	$<TARGET_FILE:imageprocessing>
-	$<TARGET_FILE:videoplayer>
-	$<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
-	COMMENT "Copying file to Runtime directory: " $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
-  )
-
-  # Post-Build Step: Copy example images
-  add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/resources/images
-	$<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
-	COMMENT "Copying images directory ("${CMAKE_CURRENT_SOURCE_DIR}/resources/images") to Runtime directory: " $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
-  )
-
-  # Run winddeployqt if it can be found, to copy all the qt dlls.
-  find_program(WINDEPLOYQT_EXECUTABLE NAMES windeployqt HINTS ${QTDIR} ENV QTDIR PATH_SUFFIXES bin)
-  add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-    COMMAND ${WINDEPLOYQT_EXECUTABLE} --debug --pdb $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
-  )
-  add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-    COMMAND if 1==$<CONFIG:Release> ${WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
+if(APPLE)
+ install(TARGETS ${CMAKE_PROJECT_NAME}
+    BUNDLE DESTINATION .
   )
 endif()

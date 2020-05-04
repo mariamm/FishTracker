@@ -52,7 +52,6 @@
 
 #include "playercontrols.h"
 #include "playlistmodel.h"
-#include "histogramwidget.h"
 #include "videowidget.h"
 
 #include <QMediaService>
@@ -84,7 +83,6 @@ Player::Player(QWidget *parent)
     connect(m_player, &QMediaPlayer::bufferStatusChanged, this, &Player::bufferingProgress);
     connect(m_player, &QMediaPlayer::videoAvailableChanged, this, &Player::videoAvailableChanged);
     connect(m_player, QOverload<QMediaPlayer::Error>::of(&QMediaPlayer::error), this, &Player::displayErrorMessage);
-    connect(m_player, &QMediaPlayer::stateChanged, this, &Player::stateChanged);
 
 //! [2]
     m_videoWidget = new VideoWidget(this);
@@ -105,23 +103,6 @@ Player::Player(QWidget *parent)
 
     m_labelDuration = new QLabel(this);
     connect(m_slider, &QSlider::sliderMoved, this, &Player::seek);
-
-    m_labelHistogram = new QLabel(this);
-    m_labelHistogram->setText("Histogram:");
-    m_videoHistogram = new HistogramWidget(this);
-    m_audioHistogram = new HistogramWidget(this);
-    QHBoxLayout *histogramLayout = new QHBoxLayout;
-    histogramLayout->addWidget(m_labelHistogram);
-    histogramLayout->addWidget(m_videoHistogram, 1);
-    histogramLayout->addWidget(m_audioHistogram, 2);
-
-    m_videoProbe = new QVideoProbe(this);
-    connect(m_videoProbe, &QVideoProbe::videoFrameProbed, m_videoHistogram, &HistogramWidget::processFrame);
-    m_videoProbe->setSource(m_player);
-
-    m_audioProbe = new QAudioProbe(this);
-    connect(m_audioProbe, &QAudioProbe::audioBufferProbed, m_audioHistogram, &HistogramWidget::processBuffer);
-    m_audioProbe->setSource(m_player);
 
     QPushButton *openButton = new QPushButton(tr("Open"), this);
 
@@ -173,7 +154,6 @@ Player::Player(QWidget *parent)
     hLayout->addWidget(m_labelDuration);
     layout->addLayout(hLayout);
     layout->addLayout(controlLayout);
-    layout->addLayout(histogramLayout);
 #if defined(Q_OS_QNX)
     // On QNX, the main window doesn't have a title bar (or any other decorations).
     // Create a status bar for the status information instead.
@@ -299,7 +279,6 @@ void Player::jump(const QModelIndex &index)
 
 void Player::playlistPositionChanged(int currentItem)
 {
-    clearHistogram();
     m_playlistView->setCurrentIndex(m_playlistModel->index(currentItem, 0));
 }
 
@@ -338,22 +317,14 @@ void Player::statusChanged(QMediaPlayer::MediaStatus status)
     }
 }
 
-void Player::stateChanged(QMediaPlayer::State state)
-{
-    if (state == QMediaPlayer::StoppedState)
-        clearHistogram();
-}
-
 void Player::handleCursor(QMediaPlayer::MediaStatus status)
 {
-#ifndef QT_NO_CURSOR
     if (status == QMediaPlayer::LoadingMedia ||
         status == QMediaPlayer::BufferingMedia ||
         status == QMediaPlayer::StalledMedia)
         setCursor(QCursor(Qt::BusyCursor));
     else
-        unsetCursor();
-#endif
+        setCursor(QCursor(Qt::ArrowCursor));
 }
 
 void Player::bufferingProgress(int progress)
@@ -474,10 +445,4 @@ void Player::showColorDialog()
         connect(button, &QPushButton::clicked, m_colorDialog, &QDialog::close);
     }
     m_colorDialog->show();
-}
-
-void Player::clearHistogram()
-{
-    QMetaObject::invokeMethod(m_videoHistogram, "processFrame", Qt::QueuedConnection, Q_ARG(QVideoFrame, QVideoFrame()));
-    QMetaObject::invokeMethod(m_audioHistogram, "processBuffer", Qt::QueuedConnection, Q_ARG(QAudioBuffer, QAudioBuffer()));
 }

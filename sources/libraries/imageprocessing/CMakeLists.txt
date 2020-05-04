@@ -42,7 +42,6 @@ generate_export_header(${LIBRARY_NAME})
 
 target_link_libraries(${LIBRARY_NAME}
   Qt5::Widgets
-  Qt5::Qml
   ${OpenCV_LIBS}
 )
 
@@ -51,9 +50,3 @@ target_include_directories(
   PUBLIC
   ${IMAGEPROCESSING_LIB_INCLUDE_PATHS}
 )
-
-if(WIN32)
-  install(TARGETS ${LIBRARY_NAME}
-    RUNTIME DESTINATION .
-  )
-endif()

@@ -1,0 +1,15 @@
+file(GLOB_RECURSE SOURCE_FILES *.cpp)
+
+set(Test_FILES ${FT_SOURCE_FILES} ${SOURCE_FILES} CACHE INTERNAL "source files")
+
+#target_sources(
+#  )
+
+add_executable(MyFirstTest MyFirstTest.cpp)
+add_test(NAME MyFirstTest COMMAND ${RUNTIME_OUTPUT_DIRECTORY}/MyFirstTest)
+
+target_link_libraries(MyFirstTest
+  imageprocessing
+  videoplayer
+  Qt5::Test
+)

@@ -10,6 +10,8 @@ set(CMAKE_MACOSX_RPATH OFF)
 set(CMAKE_CXX_STANDARD 11)
 endif()
 
+#Testing
+enable_testing()
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
@@ -31,11 +33,7 @@ if(NOT ";${SUPPORTED_ARCHITECTURES};" MATCHES ${ARCHITECTURE})
 endif()
 
 # Set Product Name string
-if(ARCHITECTURE STREQUAL "x86")
-  set(PRODUCT_NAME "${PROJECT_NAME} (32-bit)" CACHE INTERNAL "Product name")
-else()
-  set(PRODUCT_NAME ${PROJECT_NAME} CACHE INTERNAL "Product name")
-endif()
+set(PRODUCT_NAME ${PROJECT_NAME} CACHE INTERNAL "Product name")
 
 # Compiler-specific flags
 # Visual Studio
@@ -87,16 +85,21 @@ endif()
 
 if (OPENMP_FOUND)
 	message(STATUS "OpenMP found.")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    # set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-	# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
+
+    if(APPLE)
+        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    endif()
+    if(WIN32)
+        set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+	    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lpthread")
+    endif()
 endif()
 
 ########
 # Qt 5 #
 ########
-find_package(Qt5 5.14 REQUIRED COMPONENTS Core Widgets Quick OpenGL 3DCore PrintSupport Gui Xml Network Multimedia MultimediaWidgets)
+find_package(Qt5 5.14 REQUIRED COMPONENTS Core Widgets Quick OpenGL 3DCore PrintSupport Gui Xml Network Multimedia MultimediaWidgets Test)
 
 # Save Qt paths
 get_target_property(QtCore_LOCATION Qt5::Core LOCATION)
@@ -123,6 +126,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 add_subdirectory(sources/application)
 add_subdirectory(sources/libraries/imageprocessing)
 add_subdirectory(sources/libraries/videoplayer)
+add_subdirectory(sources/tests)
 
 # Add platform-specific files
 if (WIN32)
