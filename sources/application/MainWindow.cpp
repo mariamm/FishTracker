@@ -20,5 +20,9 @@
 MainWindow::MainWindow()
 {
     setWindowTitle(tr("FishTracker v.1"));
-    setMinimumSize(160, 160);
+
+    Player* player = new Player(this);
+    
+    setCentralWidget(player);
+
 }

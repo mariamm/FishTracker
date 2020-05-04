@@ -7,6 +7,8 @@
 #include <QMenu>
 #include <QPushButton>
 
+#include "player.h"
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

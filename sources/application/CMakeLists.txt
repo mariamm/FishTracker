@@ -46,6 +46,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
   Qt5::Gui
   ${OpenCV_LIBS}
   imageprocessing
+  videoplayer
 )
 
 # Ensure windows.h does not define min and max macros
@@ -111,6 +112,7 @@ if (MSVC)
   add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 	$<TARGET_FILE:imageprocessing>
+	$<TARGET_FILE:videoplayer>
 	$<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
 	COMMENT "Copying file to Runtime directory: " $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>
   )

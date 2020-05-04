@@ -96,7 +96,7 @@ endif()
 ########
 # Qt 5 #
 ########
-find_package(Qt5 5.14 REQUIRED COMPONENTS Core Widgets Quick OpenGL 3DCore PrintSupport Gui Network)
+find_package(Qt5 5.14 REQUIRED COMPONENTS Core Widgets Quick OpenGL 3DCore PrintSupport Gui Xml Network Multimedia MultimediaWidgets)
 
 # Save Qt paths
 get_target_property(QtCore_LOCATION Qt5::Core LOCATION)
@@ -122,13 +122,14 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 ######################
 add_subdirectory(sources/application)
 add_subdirectory(sources/libraries/imageprocessing)
+add_subdirectory(sources/libraries/videoplayer)
 
 # Add platform-specific files
 if (WIN32)
   add_subdirectory(platform/windows)
 endif()
 if (APPLE)
-  #add_subdirectory(platform/osx)
+  add_subdirectory(platform/osx)
 endif()
 
 # Set startup project
