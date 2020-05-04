@@ -5,12 +5,6 @@
 #include <QPixmap>
 #include <QStackedWidget>
 #include <QLayout>
-//#if defined(QT_PRINTSUPPORT_LIB)
-//#include <QtPrintSupport/qtprintsupportglobal.h>
-//#if QT_CONFIG(printdialog)
-//#include <QPrintDialog>
-//#endif
-//#endif
 
 #include "MainWindow.h"
 #include "Common.h"
@@ -20,9 +14,12 @@
 MainWindow::MainWindow()
 {
     setWindowTitle(tr("FishTracker v.1"));
-
-    Player* player = new Player(this);
+    QWidget *ui_area = new QWidget;
+    setCentralWidget(ui_area);
     
-    setCentralWidget(player);
-
+    QVBoxLayout *mainLayout = new QVBoxLayout;
+    Player* player = new Player;
+    
+    mainLayout->addWidget(player);
+    ui_area->setLayout(mainLayout);
 }
