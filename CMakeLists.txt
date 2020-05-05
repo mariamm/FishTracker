@@ -33,7 +33,7 @@ if(NOT ";${SUPPORTED_ARCHITECTURES};" MATCHES ${ARCHITECTURE})
 endif()
 
 # Set Product Name string
-set(PRODUCT_NAME ${PROJECT_NAME} CACHE INTERNAL "Product name")
+set(PRODUCT_NAME ${PROJECT_NAME})
 
 # Compiler-specific flags
 # Visual Studio
@@ -45,10 +45,6 @@ if(MSVC)
   set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
   set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
 endif()
-
-# Clear lists
-set(FT_LIBS "" CACHE INTERNAL "libraries")
-set(FT_SOURCE_FILES "" CACHE INTERNAL "source files")
 
 ##########
 # OpenGL #
@@ -104,10 +100,10 @@ find_package(Qt5 5.14 REQUIRED COMPONENTS Core Widgets Quick OpenGL 3DCore Print
 # Save Qt paths
 get_target_property(QtCore_LOCATION Qt5::Core LOCATION)
 get_filename_component(QT_LIB_DIR ${QtCore_LOCATION} PATH)
-set(QT_LIB_DIR ${QT_LIB_DIR} CACHE INTERNAL "Qt library dir")
-set(QT_BIN_DIR ${QT_LIB_DIR}/../bin CACHE INTERNAL "Qt binary dir")
-set(QT_SRC_DIR ${QT_LIB_DIR}/../../Src CACHE INTERNAL "Qt source dir")
-set(QT_PLUGINS_DIR ${QT_LIB_DIR}/../plugins CACHE INTERNAL "Qt plugins dir")
+set(QT_LIB_DIR ${QT_LIB_DIR})
+set(QT_BIN_DIR ${QT_LIB_DIR}/../bin)
+set(QT_SRC_DIR ${QT_LIB_DIR}/../../Src)
+set(QT_PLUGINS_DIR ${QT_LIB_DIR}/../plugins)
 message(STATUS "Qt library directory: " ${QT_LIB_DIR})
 message(STATUS "Qt binary directory: " ${QT_BIN_DIR})
 message(STATUS "Qt source directory: " ${QT_SRC_DIR})

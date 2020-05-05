@@ -2,13 +2,9 @@ include(GenerateExportHeader)
 
 set(LIBRARY_NAME videoplayer)
 
-set(FT_LIBS ${FT_LIBS} ${LIBRARY_NAME} CACHE INTERNAL "libraries")
-
 file(GLOB_RECURSE UI_FILES *.ui)
 file(GLOB_RECURSE SOURCE_FILES *.cpp)
 file(GLOB_RECURSE HEADER_FILES *.h)
-
-set(FT_SOURCE_FILES ${FT_SOURCE_FILES} ${SOURCE_FILES} CACHE INTERNAL "source files")
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
@@ -28,7 +24,7 @@ add_library(${LIBRARY_NAME}
   ${UI_HEADERS}
 )
 
-# Postfix of DLLs:
+# Debug postfix of DLLs:
 if(WIN32)
   set(${LIBRARY_NAME}_DEBUG_POSTFIX d)
 endif()
