@@ -6,7 +6,11 @@
 #include <QAction>
 #include <QMenu>
 #include <QPushButton>
+#include <QListWidget>
 
+#include "Common.h"
+#include "Tracker.h"
+#include "Network.h"
 #include "player.h"
 
 class MainWindow : public QMainWindow
@@ -17,7 +21,29 @@ public:
     MainWindow();
 
     private:
+        bool m_trackerMode;
+        //File Menu
+        QMenu *m_fileMenu;
+        QAction *m_openAction;
+        QAction *m_saveAction;
+        QAction *m_saveAsAction;
+        QAction *m_exitAction;
+
+        Tracker *m_mockTracker;//To do: make unique ptr
+        Server *m_trackerServer;
+
+        Client* m_visualizerClient; //to do
+
+        //Help Menu
+        QMenu *m_helpMenu;
+        QAction *m_aboutAction;
+
         //Ui
+        QListWidget *m_trackingOutput;
+
+        void initAsTracker();
+        void initAsVisualizer();
+
         void createActions();
         void createMenus();
         void updateActions();
@@ -26,41 +52,12 @@ public:
         bool loadFile(const QString &);
         bool saveFile(const QString &fileName);
 
-        //File Menu
-        QMenu *m_fileMenu;
-        QAction *m_openAction;
-        QAction *m_saveAction;
-        QAction *m_saveAsAction;
-        QAction *m_printAction;
-        QAction *m_themeAction;
-        QAction *m_exitAction;
-
-        //Edit Menu
-        QMenu *m_editMenu;
-        QAction *m_undoAction;
-        QAction *m_redoAction;
-        QAction *m_copyAction;
-        QAction *m_pasteAction;
-
-        //View Menu
-        QMenu *m_viewMenu;
-        QAction *m_zoomInAction;
-        QAction *m_zoomOutAction;
-        QAction *m_normalSizeAction;
-        QAction *m_fitToWindowAction;
-
-        //Help Menu
-        QMenu *m_helpMenu;
-        QAction *m_aboutAction;
-
-
     private slots:
-        //File
-        void open(){}
-        void save(){}
-        void saveAs(){}
-        void print(){}
-        void toggleTheme(bool toggled){}
+
+        //tracker
+        void addOutput(QString o);
+        void onStartTracker();
+        void onStopTracker();
 
         //Help
         void about(){}
