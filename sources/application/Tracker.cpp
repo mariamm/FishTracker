@@ -17,6 +17,12 @@ void Tracker::stop()
     m_outputTimer->stop();
 }
 
+void Tracker::processFrame(cv::Mat frame)
+{
+    //track object in frame
+    //track();
+}
+
 void Tracker::track()
 {
     QDateTime t = QDateTime::currentDateTime();

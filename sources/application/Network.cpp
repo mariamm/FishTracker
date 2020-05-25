@@ -182,8 +182,8 @@ void Client::readMessage()
     if (!in.commitTransaction())
         return;
 
-    m_trackingInput->addItem("incoming:");
     m_trackingInput->addItem(nextInput);
+    m_trackingInput->scrollToBottom();
 }
 
 void Client::displayError(QAbstractSocket::SocketError socketError)

@@ -174,14 +174,15 @@ void PlayerControls::setMuted(bool muted)
 
 void PlayerControls::playClicked()
 {
-    switch (m_playerState) {
-    case QMediaPlayer::StoppedState:
-    case QMediaPlayer::PausedState:
-        emit play();
-        break;
-    case QMediaPlayer::PlayingState:
-        emit pause();
-        break;
+    switch (m_playerState)
+    {
+        case QMediaPlayer::StoppedState:
+        case QMediaPlayer::PausedState:
+            emit play();
+            break;
+        case QMediaPlayer::PlayingState:
+            emit pause();
+            break;
     }
 }
 

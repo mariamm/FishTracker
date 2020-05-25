@@ -1,53 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** BSD License Usage
-** Alternatively, you may use this file under the terms of the BSD license
-** as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of The Qt Company Ltd nor the names of its
-**     contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
-
 #include "player.h"
 
 #include "playercontrols.h"
@@ -84,7 +34,7 @@ Player::Player(QWidget *parent)
     connect(m_player, &QMediaPlayer::videoAvailableChanged, this, &Player::videoAvailableChanged);
     connect(m_player, QOverload<QMediaPlayer::Error>::of(&QMediaPlayer::error), this, &Player::displayErrorMessage);
 
-//! [2]
+
     m_videoWidget = new VideoWidget(this);
     m_player->setVideoOutput(m_videoWidget);
 
@@ -114,6 +64,7 @@ Player::Player(QWidget *parent)
     controls->setMuted(controls->isMuted());
 
     connect(controls, &PlayerControls::play, m_player, &QMediaPlayer::play);
+    connect(controls, &PlayerControls::play, this, &Player::playClicked);
     connect(controls, &PlayerControls::pause, m_player, &QMediaPlayer::pause);
     connect(controls, &PlayerControls::stop, m_player, &QMediaPlayer::stop);
     connect(controls, &PlayerControls::next, m_playlist, &QMediaPlaylist::next);
@@ -132,7 +83,6 @@ Player::Player(QWidget *parent)
 
     m_colorButton = new QPushButton(tr("Color Options..."), this);
     m_colorButton->setEnabled(false);
-    connect(m_colorButton, &QPushButton::clicked, this, &Player::showColorDialog);
 
     QBoxLayout *displayLayout = new QHBoxLayout;
     displayLayout->addWidget(m_videoWidget, 2);
@@ -185,28 +135,34 @@ void Player::open()
 {
     QFileDialog fileDialog(this);
     fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-    fileDialog.setWindowTitle(tr("Open Files"));
+    fileDialog.setWindowTitle(tr("Open video"));
     QStringList supportedMimeTypes = m_player->supportedMimeTypes();
-    if (!supportedMimeTypes.isEmpty()) {
+    if (!supportedMimeTypes.isEmpty())
+    {
         supportedMimeTypes.append("audio/x-m3u"); // MP3 playlists
         fileDialog.setMimeTypeFilters(supportedMimeTypes);
     }
     fileDialog.setDirectory(QStandardPaths::standardLocations(QStandardPaths::MoviesLocation).value(0, QDir::homePath()));
     if (fileDialog.exec() == QDialog::Accepted)
+    {
+        m_videoPath = fileDialog.selectedFiles().first();
         addToPlaylist(fileDialog.selectedUrls());
+    }
 }
 
 static bool isPlaylist(const QUrl &url) // Check for ".m3u" playlists.
 {
     if (!url.isLocalFile())
         return false;
+
     const QFileInfo fileInfo(url.toLocalFile());
     return fileInfo.exists() && !fileInfo.suffix().compare(QLatin1String("m3u"), Qt::CaseInsensitive);
 }
 
 void Player::addToPlaylist(const QList<QUrl> &urls)
 {
-    for (auto &url: urls) {
+    for (auto &url: urls)
+    {
         if (isPlaylist(url))
             m_playlist->load(url);
         else
@@ -217,6 +173,17 @@ void Player::addToPlaylist(const QList<QUrl> &urls)
 void Player::setCustomAudioRole(const QString &role)
 {
     m_player->setCustomAudioRole(role);
+}
+
+void Player::setFrame(QImage frame)
+{
+    QVideoFrame videoFrame(frame);
+
+}
+
+QString Player::videoPath()
+{
+    return m_videoPath;
 }
 
 void Player::durationChanged(qint64 duration)
@@ -235,19 +202,7 @@ void Player::positionChanged(qint64 progress)
 
 void Player::metaDataChanged()
 {
-    if (m_player->isMetaDataAvailable()) {
-        setTrackInfo(QString("%1 - %2")
-                .arg(m_player->metaData(QMediaMetaData::AlbumArtist).toString())
-                .arg(m_player->metaData(QMediaMetaData::Title).toString()));
 
-        if (m_coverLabel) {
-            QUrl url = m_player->metaData(QMediaMetaData::CoverArtUrlLarge).value<QUrl>();
-
-            m_coverLabel->setPixmap(!url.isEmpty()
-                    ? QPixmap(url.toString())
-                    : QPixmap());
-        }
-    }
 }
 
 void Player::previousClicked()
@@ -270,6 +225,7 @@ void Player::jump(const QModelIndex &index)
 
 void Player::playlistPositionChanged(int currentItem)
 {
+    m_videoPath = m_playlistModel->index(currentItem, 0).data().toString();
     m_playlistView->setCurrentIndex(m_playlistModel->index(currentItem, 0));
 }
 
@@ -328,11 +284,13 @@ void Player::bufferingProgress(int progress)
 
 void Player::videoAvailableChanged(bool available)
 {
-    if (!available) {
+    if (!available)
+    {
         disconnect(m_fullScreenButton, &QPushButton::clicked, m_videoWidget, &QVideoWidget::setFullScreen);
         disconnect(m_videoWidget, &QVideoWidget::fullScreenChanged, m_fullScreenButton, &QPushButton::setChecked);
         m_videoWidget->setFullScreen(false);
-    } else {
+    } else
+    {
         connect(m_fullScreenButton, &QPushButton::clicked, m_videoWidget, &QVideoWidget::setFullScreen);
         connect(m_videoWidget, &QVideoWidget::fullScreenChanged, m_fullScreenButton, &QPushButton::setChecked);
 
@@ -342,29 +300,17 @@ void Player::videoAvailableChanged(bool available)
     m_colorButton->setEnabled(available);
 }
 
-void Player::setTrackInfo(const QString &info)
-{
-    m_trackInfo = info;
-
-    if (m_statusBar) {
-        m_statusBar->showMessage(m_trackInfo);
-        m_statusLabel->setText(m_statusInfo);
-    } else {
-        if (!m_statusInfo.isEmpty())
-            setWindowTitle(QString("%1 | %2").arg(m_trackInfo).arg(m_statusInfo));
-        else
-            setWindowTitle(m_trackInfo);
-    }
-}
 
 void Player::setStatusInfo(const QString &info)
 {
     m_statusInfo = info;
 
-    if (m_statusBar) {
+    if (m_statusBar)
+    {
         m_statusBar->showMessage(m_trackInfo);
         m_statusLabel->setText(m_statusInfo);
-    } else {
+    } else
+    {
         if (!m_statusInfo.isEmpty())
             setWindowTitle(QString("%1 | %2").arg(m_trackInfo).arg(m_statusInfo));
         else
@@ -380,7 +326,8 @@ void Player::displayErrorMessage()
 void Player::updateDurationInfo(qint64 currentInfo)
 {
     QString tStr;
-    if (currentInfo || m_duration) {
+    if (currentInfo || m_duration)
+    {
         QTime currentTime((currentInfo / 3600) % 60, (currentInfo / 60) % 60,
             currentInfo % 60, (currentInfo * 1000) % 1000);
         QTime totalTime((m_duration / 3600) % 60, (m_duration / 60) % 60,
@@ -393,47 +340,3 @@ void Player::updateDurationInfo(qint64 currentInfo)
     m_labelDuration->setText(tStr);
 }
 
-void Player::showColorDialog()
-{
-    if (!m_colorDialog) {
-        QSlider *brightnessSlider = new QSlider(Qt::Horizontal);
-        brightnessSlider->setRange(-100, 100);
-        brightnessSlider->setValue(m_videoWidget->brightness());
-        connect(brightnessSlider, &QSlider::sliderMoved, m_videoWidget, &QVideoWidget::setBrightness);
-        connect(m_videoWidget, &QVideoWidget::brightnessChanged, brightnessSlider, &QSlider::setValue);
-
-        QSlider *contrastSlider = new QSlider(Qt::Horizontal);
-        contrastSlider->setRange(-100, 100);
-        contrastSlider->setValue(m_videoWidget->contrast());
-        connect(contrastSlider, &QSlider::sliderMoved, m_videoWidget, &QVideoWidget::setContrast);
-        connect(m_videoWidget, &QVideoWidget::contrastChanged, contrastSlider, &QSlider::setValue);
-
-        QSlider *hueSlider = new QSlider(Qt::Horizontal);
-        hueSlider->setRange(-100, 100);
-        hueSlider->setValue(m_videoWidget->hue());
-        connect(hueSlider, &QSlider::sliderMoved, m_videoWidget, &QVideoWidget::setHue);
-        connect(m_videoWidget, &QVideoWidget::hueChanged, hueSlider, &QSlider::setValue);
-
-        QSlider *saturationSlider = new QSlider(Qt::Horizontal);
-        saturationSlider->setRange(-100, 100);
-        saturationSlider->setValue(m_videoWidget->saturation());
-        connect(saturationSlider, &QSlider::sliderMoved, m_videoWidget, &QVideoWidget::setSaturation);
-        connect(m_videoWidget, &QVideoWidget::saturationChanged, saturationSlider, &QSlider::setValue);
-
-        QFormLayout *layout = new QFormLayout;
-        layout->addRow(tr("Brightness"), brightnessSlider);
-        layout->addRow(tr("Contrast"), contrastSlider);
-        layout->addRow(tr("Hue"), hueSlider);
-        layout->addRow(tr("Saturation"), saturationSlider);
-
-        QPushButton *button = new QPushButton(tr("Close"));
-        layout->addRow(button);
-
-        m_colorDialog = new QDialog(this);
-        m_colorDialog->setWindowTitle(tr("Color Options"));
-        m_colorDialog->setLayout(layout);
-
-        connect(button, &QPushButton::clicked, m_colorDialog, &QDialog::close);
-    }
-    m_colorDialog->show();
-}

@@ -70,8 +70,8 @@ QT_END_NAMESPACE
 
 class PlaylistModel;
 
-
 #include "videoplayer_export.h"
+
 
 class Player : public QWidget
 {
@@ -86,8 +86,13 @@ public:
     void addToPlaylist(const QList<QUrl> &urls);
     void setCustomAudioRole(const QString &role);
 
+    void setFrame(QImage frame);
+
+    QString videoPath();
+
 signals:
     void fullScreenChanged(bool fullScreen);
+    void playClicked();
 
 private slots:
     void open();
@@ -106,8 +111,6 @@ private slots:
     void videoAvailableChanged(bool available);
 
     void displayErrorMessage();
-
-    void showColorDialog();
 
 private:
     void setTrackInfo(const QString &info);
@@ -132,6 +135,8 @@ private:
     QString m_trackInfo;
     QString m_statusInfo;
     qint64 m_duration;
+
+    QString m_videoPath = "";
 };
 
 #endif // PLAYER_H

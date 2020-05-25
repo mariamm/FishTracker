@@ -54,8 +54,14 @@ void MainWindow::initAsTracker()
 
     mainLayout->addLayout(trackingLayout);
 
-    Player* player = new Player;
-    mainLayout->addWidget(player);
+    m_videoPlayer = new Player(this);
+
+    connect(m_videoPlayer, &Player::playClicked, this, &MainWindow::onPlayButtonPressed);
+
+    //connect(m_videoPlayer, &VideoPlayer::play, this, &MainWindow::onPlayButtonPressed);
+    //connect(m_videoPlayer, &VideoPlayer::stop, this, &MainWindow::onStopTracker);
+
+    mainLayout->addWidget(m_videoPlayer);
     ui_area->setLayout(mainLayout);
 }
 
@@ -74,13 +80,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (m_video.isOpened())
     {
-        QMessageBox::warning(this, "Warning", "Stop the video before closing the application!");
-        event->ignore();
+        m_video.release();
     }
-    else
-    {
-        event->accept();
-    }
+
+    event->accept();
+
 }
 
 void MainWindow::onNewTrackingOutput(QString o)
@@ -90,19 +94,21 @@ void MainWindow::onNewTrackingOutput(QString o)
         m_trackerServer->sendMessage(o);
     }
 
-    if(trackingOutputPath != "")
+    if(m_trackingOutputPath != "")
     {
-        QFile f(trackingOutputPath);
-          bool ok = f.open(QIODevice::WriteOnly);
+        QFile f(m_trackingOutputPath);
 
-          if(!ok) {
-              qDebug() << "open file error!";
-              return;
-          }
+        bool ok = f.open(QIODevice::WriteOnly | QIODevice::Append);
 
-          QTextStream stream(&f);
-          stream << o;
-          f.close();
+        if(!ok)
+        {
+          qDebug() << "Open file error!";
+          return;
+        }
+
+        QTextStream stream(&f);
+        stream << o<<"\n";
+        f.close();
     }
     m_trackingOutputList->addItem(o);
     m_trackingOutputList->scrollToBottom();
@@ -128,14 +134,51 @@ void MainWindow::onStartTracker()
         if(m_trackerServer == nullptr)
             m_trackerServer = new Server();
     }
-
-    m_mockTracker->start();
+    else
+    {
+        m_trackingOutputPath = QFileDialog::getSaveFileName(this, tr("Save File"));
+    }
 }
 
 void MainWindow::onStopTracker()
 {
     if(m_mockTracker != nullptr)
         m_mockTracker->stop();
+}
+
+void MainWindow::onPlayButtonPressed()
+{
+    if(m_mockTracker != nullptr)
+        m_mockTracker->start();
+
+    if(m_video.isOpened())
+    {
+        m_video.release();
+        return;
+    }
+
+
+    if(!m_video.open(m_videoPlayer->videoPath().toStdString()))
+    {
+        //QMessageBox::critical(this, "Video Error", "Make sure you entered a correct and supported video file path.");
+        return;
+    }
+
+
+    cv::Mat frame;
+    while(m_video.isOpened())
+    {
+        m_video >> frame;
+        if(!frame.empty())
+        {
+            m_mockTracker->processFrame(frame);
+
+            cv::resize(frame, frame, cv::Size(320, 240));
+            QPixmap pixmap = Common::cvMatToQPixmap(frame);
+            //m_videoPlayer->setFrame(pixmap);
+        }
+        qApp->processEvents();
+    }
 }
 
 

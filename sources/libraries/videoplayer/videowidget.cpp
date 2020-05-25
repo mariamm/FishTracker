@@ -67,13 +67,18 @@ VideoWidget::VideoWidget(QWidget *parent)
 
 void VideoWidget::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Escape && isFullScreen()) {
+    if (event->key() == Qt::Key_Escape && isFullScreen())
+    {
         setFullScreen(false);
         event->accept();
-    } else if (event->key() == Qt::Key_Enter && event->modifiers() & Qt::Key_Alt) {
+    }
+    else if (event->key() == Qt::Key_Enter && event->modifiers() & Qt::Key_Alt)
+    {
         setFullScreen(!isFullScreen());
         event->accept();
-    } else {
+    }
+    else
+    {
         QVideoWidget::keyPressEvent(event);
     }
 }
