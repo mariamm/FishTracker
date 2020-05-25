@@ -6,7 +6,6 @@ Tracker::Tracker()
         m_outputTimer = new QTimer(this);
         connect(m_outputTimer, &QTimer::timeout, this, &Tracker::track);
 }
-
 void Tracker::start()
 {
 

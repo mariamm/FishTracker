@@ -13,6 +13,8 @@
 #include "Network.h"
 #include "player.h"
 
+#include <opencv2/opencv.hpp>
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -23,23 +25,24 @@ public:
     private:
         bool m_trackerMode;
         //File Menu
-        QMenu *m_fileMenu;
-        QAction *m_openAction;
-        QAction *m_saveAction;
-        QAction *m_saveAsAction;
-        QAction *m_exitAction;
+        QMenu *m_fileMenu = nullptr;;
+        QAction *m_openAction= nullptr;;
+        QAction *m_saveAction= nullptr;;
+        QAction *m_saveAsAction= nullptr;;
+        QAction *m_exitAction= nullptr;;
 
-        Tracker *m_mockTracker;//To do: make unique ptr
-        Server *m_trackerServer;
+        Tracker *m_mockTracker = nullptr;
+        Server *m_trackerServer = nullptr;
+        Client *m_visualizerClient = nullptr;
 
-        Client* m_visualizerClient; //to do
+        cv::VideoCapture m_video;
 
         //Help Menu
-        QMenu *m_helpMenu;
-        QAction *m_aboutAction;
+        QMenu *m_helpMenu= nullptr;;
+        QAction *m_aboutAction= nullptr;;
 
         //Ui
-        QListWidget *m_trackingOutput;
+        QListWidget *m_trackingOutput= nullptr;;
 
         void initAsTracker();
         void initAsVisualizer();
@@ -51,6 +54,9 @@ public:
         //File
         bool loadFile(const QString &);
         bool saveFile(const QString &fileName);
+
+    protected:
+        void closeEvent(QCloseEvent *event);
 
     private slots:
 

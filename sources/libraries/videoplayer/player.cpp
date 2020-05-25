@@ -154,15 +154,6 @@ Player::Player(QWidget *parent)
     hLayout->addWidget(m_labelDuration);
     layout->addLayout(hLayout);
     layout->addLayout(controlLayout);
-#if defined(Q_OS_QNX)
-    // On QNX, the main window doesn't have a title bar (or any other decorations).
-    // Create a status bar for the status information instead.
-    m_statusLabel = new QLabel;
-    m_statusBar = new QStatusBar;
-    m_statusBar->addPermanentWidget(m_statusLabel);
-    m_statusBar->setSizeGripEnabled(false); // Without mouse grabbing, it doesn't work very well.
-    layout->addWidget(m_statusBar);
-#endif
 
     setLayout(layout);
 

@@ -24,17 +24,6 @@ set(IMAGES_PATH "${RESOURCES_PATH}/Images")
 # Videos path
 set(VIDEOS_PATH "${RESOURCES_PATH}/Videos")
 
-# Supported architectures
-set(SUPPORTED_ARCHITECTURES x64)
-
-# Check if architecture is supported
-if(NOT ";${SUPPORTED_ARCHITECTURES};" MATCHES ${ARCHITECTURE})
-  message(FATAL_ERROR "Architecture is not supported: " ${ARCHITECTURE})
-endif()
-
-# Set Product Name string
-set(PRODUCT_NAME ${PROJECT_NAME})
-
 # Compiler-specific flags
 # Visual Studio
 if(MSVC)

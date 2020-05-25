@@ -6,6 +6,7 @@
 QT_BEGIN_NAMESPACE
 class QLabel;
 class QTcpServer;
+class QTcpSocket;
 class QNetworkSession;
 QT_END_NAMESPACE
 
@@ -17,21 +18,24 @@ class Server : public QObject
 public:
     explicit Server();
     void sendMessage(const QString &msg);
-
+    bool m_clientConnected;
 private slots:
     void sessionOpened();
     void onNewClientConnected();
+    void onClientDisconnected();
 
 private:
     QLabel *statusLabel = nullptr;
     QTcpServer *tcpServer = nullptr;
     QNetworkSession *networkSession = nullptr;
+    QTcpSocket * m_clientConnection;
 };
 
 
 #include <QDataStream>
 #include <QDialog>
 #include <QTcpSocket>
+#include <QListWidget>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -51,21 +55,20 @@ public:
     explicit Client(QWidget *parent = nullptr);
 
 private slots:
-    void requestNewFortune();
-    void readFortune();
+    void connectToServer();
+    void readMessage();
     void displayError(QAbstractSocket::SocketError socketError);
-    void enableGetFortuneButton();
+    void enableConnectButton();
     void sessionOpened();
 
 private:
     QComboBox *hostCombo = nullptr;
-    QLineEdit *portLineEdit = nullptr;
     QLabel *statusLabel = nullptr;
-    QPushButton *remoteStartTrackingButton = nullptr;
+    QPushButton *connectButton = nullptr;
 
     QTcpSocket *tcpSocket = nullptr;
     QDataStream in;
-    QString currentFortune;
+    QListWidget* m_trackingInput;
 
     QNetworkSession *networkSession = nullptr;
 };

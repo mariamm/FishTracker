@@ -8,12 +8,10 @@
 
 #include "MainWindow.h"
 
-#include <opencv2/opencv.hpp>
-
 MainWindow::MainWindow()
 {
     setWindowTitle(tr("FishTracker v.1"));
-    
+
     //Prompt to start software as tracker or visualizer
     QMessageBox msgBox;
     msgBox.setText("Software Mode");
@@ -43,7 +41,7 @@ void MainWindow::initAsTracker()
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
     QVBoxLayout *trackingLayout = new QVBoxLayout;
-    m_trackingOutput = new QListWidget();
+    m_trackingOutputList = new QListWidget();
 
     QPushButton *startB = new QPushButton("Start");
     connect(startB, &QPushButton::clicked, this, &MainWindow::onStartTracker);
@@ -52,7 +50,7 @@ void MainWindow::initAsTracker()
 
     trackingLayout->addWidget(startB);
     trackingLayout->addWidget(stopB);
-    trackingLayout->addWidget(m_trackingOutput);
+    trackingLayout->addWidget(m_trackingOutputList);
 
     mainLayout->addLayout(trackingLayout);
 
@@ -63,43 +61,72 @@ void MainWindow::initAsTracker()
 
 void MainWindow::initAsVisualizer()
 {
-    /*m_visualizerClient = new Client(this);
+    m_visualizerClient = new Client(this);
     QWidget *ui_area = new QWidget;
     setCentralWidget(ui_area);
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->addWidget(m_visualizerClient);
-    ui_area->setLayout(mainLayout);*/
+    ui_area->setLayout(mainLayout);
 }
 
-
-void MainWindow::addOutput(QString o)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if(m_trackerServer != nullptr)
+    if (m_video.isOpened())
+    {
+        QMessageBox::warning(this, "Warning", "Stop the video before closing the application!");
+        event->ignore();
+    }
+    else
+    {
+        event->accept();
+    }
+}
+
+void MainWindow::onNewTrackingOutput(QString o)
+{
+    if(m_trackerServer != NULL)
     {
         m_trackerServer->sendMessage(o);
     }
-    m_trackingOutput->addItem(o);
+
+    if(trackingOutputPath != "")
+    {
+        QFile f(trackingOutputPath);
+          bool ok = f.open(QIODevice::WriteOnly);
+
+          if(!ok) {
+              qDebug() << "open file error!";
+              return;
+          }
+
+          QTextStream stream(&f);
+          stream << o;
+          f.close();
+    }
+    m_trackingOutputList->addItem(o);
+    m_trackingOutputList->scrollToBottom();
 }
 
 void MainWindow::onStartTracker()
 {
     m_mockTracker = new Tracker();
-    connect(m_mockTracker, &Tracker::output, this, &MainWindow::addOutput);
+    connect(m_mockTracker, &Tracker::output, this, &MainWindow::onNewTrackingOutput);
 
     //Prompt to start software as tracker or visualizer
     QMessageBox msgBox;
     msgBox.setText("Tracking output");
     msgBox.setInformativeText("Do you want to save or stream tracking output?");
     QAbstractButton* streamButton = msgBox.addButton(tr("Stream"), QMessageBox::YesRole);
-    msgBox.addButton(tr("Save As..,"), QMessageBox::NoRole);
+    msgBox.addButton(tr("Save As.."), QMessageBox::NoRole);
     msgBox.exec();
 
     //init
     if (msgBox.clickedButton()==streamButton)
     {
        //Start as a server
-        m_trackerServer = new Server();
+        if(m_trackerServer == nullptr)
+            m_trackerServer = new Server();
     }
 
     m_mockTracker->start();
@@ -107,12 +134,6 @@ void MainWindow::onStartTracker()
 
 void MainWindow::onStopTracker()
 {
-
-    /*ToDo:
-     * stop tracking object
-     * close output stream
-     */
-
     if(m_mockTracker != nullptr)
         m_mockTracker->stop();
 }
