@@ -13,7 +13,7 @@ class VideoPlayer : public QWidget
     Q_OBJECT
     public:
         VideoPlayer(QWidget *parent);
-        void setFrame(QPixmap frame);
+        void setFrame(const QPixmap &frame);
         QMediaPlayer::State state() const;
 
         QString videoPath() const;

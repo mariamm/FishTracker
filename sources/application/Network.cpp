@@ -1,6 +1,11 @@
 #include <QtWidgets>
 #include <QtNetwork>
 #include <QtCore>
+#include <QPixmap>
+#include <QPainter>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
 
 #include "Network.h"
 
@@ -128,16 +133,27 @@ Client::Client(QWidget *parent)
 
     connect(tcpSocket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &Client::displayError);
 
-    QGridLayout *mainLayout = nullptr;
-    mainLayout = new QGridLayout(this);
+    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    QGridLayout *grid = nullptr;
+    grid = new QGridLayout;
     m_trackingInput = new QListWidget(this);
 
-    mainLayout->addWidget(hostLabel, 0, 0);
-    mainLayout->addWidget(hostCombo, 0, 1);
-    mainLayout->addWidget(statusLabel, 1, 0, 1, 2);
-    mainLayout->addWidget(buttonBox, 2, 0, 1, 2);
-    mainLayout->addWidget(m_trackingInput, 3, 0, 5, 2);
+    grid->addWidget(hostLabel, 0, 0);
+    grid->addWidget(hostCombo, 0, 1);
+    grid->addWidget(statusLabel, 1, 0, 1, 2);
+    grid->addWidget(buttonBox, 2, 0, 1, 2);
+    grid->addWidget(m_trackingInput, 3, 0, 5, 2);
 
+    mainLayout->addLayout(grid);
+
+    visualizer = new QLabel(this);
+    QPixmap p(400, 400);
+    p.fill(Qt::black);
+    visualizer->setPixmap(p);
+
+    visualizer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    mainLayout->addWidget(visualizer);
+    setLayout(mainLayout);
     setWindowTitle(QGuiApplication::applicationDisplayName());
 
     QNetworkConfigurationManager manager;
@@ -184,6 +200,7 @@ void Client::readMessage()
 
     m_trackingInput->addItem(nextInput);
     m_trackingInput->scrollToBottom();
+    visualizeInput(nextInput);
 }
 
 void Client::displayError(QAbstractSocket::SocketError socketError)
@@ -229,4 +246,53 @@ void Client::sessionOpened()
     settings.endGroup();
 
     enableConnectButton();
+}
+
+void Client::visualizeInput(QString input)
+{
+    QJsonObject obj;
+    QJsonDocument doc = QJsonDocument::fromJson(input.toUtf8());
+    // check validity of the document
+    if(!doc.isNull())
+    {
+        if(doc.isObject())
+        {
+            obj = doc.object();
+        }
+        else
+        {
+            qDebug() << "Document is not an object" << endl;
+            return;
+        }
+    }
+    else
+    {
+        qDebug() << "Invalid JSON...\n" << in << Qt::endl;
+        return;
+    }
+
+    //video dimensions : 2704 × 1520
+    QPixmap background(676, 380);
+    background.fill(Qt::black);
+    QJsonArray objectArray = obj.value("objects").toArray();
+    int n = objectArray.count();
+
+    for (int i = 0; i < n; i++)
+    {
+        QJsonObject o       = objectArray.at(i).toObject();
+        int framenumber =   o["framenumber"].toInt();
+        int id =            o["startPoint_y"].toInt();
+        double x =          o["x"].toDouble();
+        double y =          o["y"].toDouble();
+
+
+        //downscale input values
+        x = x/4.;
+        y = y/4.;
+        QPainter painter(&background);
+        painter.setPen(Qt::red);
+        painter.drawEllipse(QPointF(x,y), 15, 15);
+        painter.end();
+    }
+    visualizer->setPixmap(background);
 }

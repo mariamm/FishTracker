@@ -51,9 +51,11 @@ VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent)
     setLayout(mainLayout);
 }
 
-void VideoPlayer::setFrame(QPixmap frame)
+void VideoPlayer::setFrame(const QPixmap &frame)
 {
-    m_videoLabel->setPixmap(frame);
+    int w = 676;
+    int h = 380;
+    m_videoLabel->setPixmap(frame.scaled(w,h,Qt::KeepAspectRatio));
 }
 
 void VideoPlayer::playClicked()

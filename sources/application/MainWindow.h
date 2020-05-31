@@ -36,7 +36,7 @@ public:
         Client *m_visualizerClient = nullptr;
 
         Tracker *m_mockTracker = nullptr;
-        Player *m_videoPlayer = nullptr;
+        VideoPlayer *m_videoPlayer = nullptr;
         cv::VideoCapture m_video;
 
         QString m_trackingOutputPath = "";
@@ -48,6 +48,8 @@ public:
         //Ui
         QListWidget *m_trackingOutputList= nullptr;;
 
+        //Init functions
+        void registerMetaTypes();
         void initAsTracker();
         void initAsVisualizer();
 
@@ -66,6 +68,7 @@ public:
 
         //tracker
         void onNewTrackingOutput(QString o);
+        void onNewTrackedFrame(cv::Mat pixmap);
         void onStartTracker();
         void onStopTracker();
         void onPlayButtonPressed();

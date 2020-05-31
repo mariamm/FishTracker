@@ -11,6 +11,7 @@
 MainWindow::MainWindow()
 {
     setWindowTitle(tr("FishTracker v.1"));
+    registerMetaTypes();
 
     //Prompt to start software as tracker or visualizer
     QMessageBox msgBox;
@@ -34,6 +35,12 @@ MainWindow::MainWindow()
     }
 }
 
+void MainWindow::registerMetaTypes()
+{
+    qRegisterMetaType<cv::Mat>("cv::Mat");
+    qRegisterMetaType<QPixmap>("qpixmap");
+}
+
 void MainWindow::initAsTracker()
 {
     QWidget *ui_area = new QWidget;
@@ -54,12 +61,12 @@ void MainWindow::initAsTracker()
 
     mainLayout->addLayout(trackingLayout);
 
-    m_videoPlayer = new Player(this);
+    m_videoPlayer = new VideoPlayer(this);
 
-    connect(m_videoPlayer, &Player::playClicked, this, &MainWindow::onPlayButtonPressed);
+    //connect(m_videoPlayer, &Player::playClicked, this, &MainWindow::onPlayButtonPressed);
 
-    //connect(m_videoPlayer, &VideoPlayer::play, this, &MainWindow::onPlayButtonPressed);
-    //connect(m_videoPlayer, &VideoPlayer::stop, this, &MainWindow::onStopTracker);
+    connect(m_videoPlayer, &VideoPlayer::play, this, &MainWindow::onPlayButtonPressed);
+    connect(m_videoPlayer, &VideoPlayer::stop, this, &MainWindow::onStopTracker);
 
     mainLayout->addWidget(m_videoPlayer);
     ui_area->setLayout(mainLayout);
@@ -82,9 +89,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     {
         m_video.release();
     }
-
     event->accept();
-
 }
 
 void MainWindow::onNewTrackingOutput(QString o)
@@ -114,10 +119,18 @@ void MainWindow::onNewTrackingOutput(QString o)
     m_trackingOutputList->scrollToBottom();
 }
 
+void MainWindow::onNewTrackedFrame(cv::Mat frame)
+{
+    QPixmap pixmap = Common::cvMatToQPixmap(frame);
+    m_videoPlayer->setFrame(pixmap);
+    qApp->processEvents();
+}
+
 void MainWindow::onStartTracker()
 {
     m_mockTracker = new Tracker();
     connect(m_mockTracker, &Tracker::output, this, &MainWindow::onNewTrackingOutput);
+    connect(m_mockTracker, &Tracker::trackedFrame, this, &MainWindow::onNewTrackedFrame);
 
     //Prompt to start software as tracker or visualizer
     QMessageBox msgBox;
@@ -144,12 +157,10 @@ void MainWindow::onStopTracker()
 {
     if(m_mockTracker != nullptr)
         m_mockTracker->stop();
-}
-
-void MainWindow::onPlayButtonPressed()
-{
-    if(m_mockTracker != nullptr)
-        m_mockTracker->start();
+    else
+    {
+        onStartTracker();
+    }
 
     if(m_video.isOpened())
     {
@@ -157,13 +168,26 @@ void MainWindow::onPlayButtonPressed()
         return;
     }
 
+}
 
-    if(!m_video.open(m_videoPlayer->videoPath().toStdString()))
+void MainWindow::onPlayButtonPressed()
+{
+    if(m_mockTracker != nullptr)
+        m_mockTracker->start();
+
+    //stop video if already open
+    if(m_video.isOpened())
     {
-        //QMessageBox::critical(this, "Video Error", "Make sure you entered a correct and supported video file path.");
+        m_video.release();
         return;
     }
 
+    if(!m_video.open(m_videoPlayer->videoPath().toStdString()))
+    {
+        QMessageBox::critical(this, "Video Error", "Make sure you entered a correct and supported video file path.");
+        qDebug()<<"Invalid video error";
+        return;
+    }
 
     cv::Mat frame;
     while(m_video.isOpened())
@@ -171,11 +195,10 @@ void MainWindow::onPlayButtonPressed()
         m_video >> frame;
         if(!frame.empty())
         {
-            m_mockTracker->processFrame(frame);
-
-            cv::resize(frame, frame, cv::Size(320, 240));
-            QPixmap pixmap = Common::cvMatToQPixmap(frame);
-            //m_videoPlayer->setFrame(pixmap);
+            if(m_mockTracker)
+                m_mockTracker->processFrame(frame);
+            else
+                onNewTrackedFrame(frame);
         }
         qApp->processEvents();
     }

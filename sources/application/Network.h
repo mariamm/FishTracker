@@ -61,10 +61,13 @@ private slots:
     void enableConnectButton();
     void sessionOpened();
 
+    void visualizeInput(QString input);
+
 private:
     QComboBox *hostCombo = nullptr;
     QLabel *statusLabel = nullptr;
     QPushButton *connectButton = nullptr;
+    QLabel *visualizer = nullptr;
 
     QTcpSocket *tcpSocket = nullptr;
     QDataStream in;
