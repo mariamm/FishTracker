@@ -44,9 +44,10 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
   Qt5::Quick
   Qt5::PrintSupport
   Qt5::Gui
+  Qt5::Multimedia
+  Qt5::MultimediaWidgets
   ${OpenCV_LIBS}
   imageprocessing
-  videoplayer
 )
 
 if(WIN32)

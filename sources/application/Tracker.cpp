@@ -59,33 +59,24 @@ void Tracker::processFrame(cv::Mat frame)
     // Storage for blobs
     vector<KeyPoint> keypoints;
 
-
-
     // Set up detector with params
     Ptr<SimpleBlobDetector> detector = SimpleBlobDetector::create(params);
 
     // Detect blobs
     detector->detect( frame, keypoints);
 
-
     // Draw detected blobs as red circles.
     // DrawMatchesFlags::DRAW_RICH_KEYPOINTS flag ensures
     // the size of the circle corresponds to the size of blob
-    //currentFrame.release();
-    //currentFrame = cv::Mat();
+    //cv::Mat tracking;
+    //drawKeypoints( frame, keypoints, tracking, Scalar(0,0,255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
 
-    cv::Mat tracking;
-    drawKeypoints( frame, keypoints, tracking, Scalar(0,0,255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
-
-    // Show blobs
-   //imshow("keypoints", tracking );
-
-    emit trackedFrame(tracking);
-    track(keypoints);
+    emit trackedFrame(frame);
+    jsonTrackingOutput(keypoints);
     QApplication::processEvents();
 }
 
-void Tracker::track(const vector<KeyPoint> &keypoints)
+void Tracker::jsonTrackingOutput(const vector<KeyPoint> &keypoints)
 {
     //QDateTime t = QDateTime::currentDateTime();
     int id=0;

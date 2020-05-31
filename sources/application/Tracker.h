@@ -23,7 +23,7 @@ class Tracker : public QObject
         QTimer *m_outputTimer;
         int frameNumber = 0;
     private slots:
-        void track(const std::vector<cv::KeyPoint> &keypoints);
+        void jsonTrackingOutput(const std::vector<cv::KeyPoint> &keypoints);
 
      signals:
         void output(QString o);

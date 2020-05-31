@@ -110,7 +110,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 ######################
 add_subdirectory(sources/application)
 add_subdirectory(sources/libraries/imageprocessing)
-add_subdirectory(sources/libraries/videoplayer)
 add_subdirectory(sources/tests)
 
 # Add platform-specific files

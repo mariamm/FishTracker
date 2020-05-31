@@ -12,7 +12,6 @@
 #include "Tracker.h"
 #include "Network.h"
 #include "VideoPlayer.h"
-#include "player.h"
 
 #include <opencv2/opencv.hpp>
 

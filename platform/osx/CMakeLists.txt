@@ -4,14 +4,12 @@
 install(TARGETS
     ${CMAKE_PROJECT_NAME}
     imageprocessing
-    videoplayer
     DESTINATION .
     CONFIGURATIONS Debug
 )
 install(TARGETS
     ${CMAKE_PROJECT_NAME}
     imageprocessing
-    videoplayer
     DESTINATION .
     CONFIGURATIONS Release
 )
@@ -59,21 +57,6 @@ install(FILES
   DESTINATION .
   CONFIGURATIONS Debug
 )
-# Qt Plugins
-#install(FILES
-#  ${QT_LIB_DIR}/../plugins/imageformats/qsvg.dll
-#  ${QT_LIB_DIR}/../plugins/imageformats/qjpeg.dll
-#  ${QT_LIB_DIR}/../plugins/imageformats/qgif.dll
-#  DESTINATION plugins/imageformats
- # CONFIGURATIONS Release
-#)
-#install(FILES
-#  ${QT_LIB_DIR}/../plugins/imageformats/qsvgd.dll
-#  ${QT_LIB_DIR}/../plugins/imageformats/qjpegd.dll
-#  ${QT_LIB_DIR}/../plugins/imageformats/qgifd.dll
-#  DESTINATION plugins/imageformats
-#  CONFIGURATIONS Debug
-# )
 
 # OpenCV DLLs
 install(FILES

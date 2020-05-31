@@ -117,6 +117,7 @@ void MainWindow::onNewTrackingOutput(QString o)
     }
     m_trackingOutputList->addItem(o);
     m_trackingOutputList->scrollToBottom();
+    qApp->processEvents();
 }
 
 void MainWindow::onNewTrackedFrame(cv::Mat frame)

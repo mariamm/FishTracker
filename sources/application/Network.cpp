@@ -44,7 +44,6 @@ void Server::sessionOpened()
     }
 
     connect(tcpServer, &QTcpServer::newConnection, this, &Server::onNewClientConnected);
-
 }
 
 void Server::onNewClientConnected()
@@ -128,9 +127,7 @@ Client::Client(QWidget *parent)
 
     connect(hostCombo, &QComboBox::editTextChanged, this, &Client::enableConnectButton);
     connect(connectButton, &QAbstractButton::clicked, this, &Client::connectToServer);
-
     connect(tcpSocket, &QIODevice::readyRead, this, &Client::readMessage);
-
     connect(tcpSocket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &Client::displayError);
 
     QHBoxLayout *mainLayout = new QHBoxLayout(this);

@@ -10,6 +10,5 @@ add_test(NAME Test4 COMMAND ${RUNTIME_OUTPUT_DIRECTORY}${TEST_EXCECUTABLE})
 
 target_link_libraries(${TEST_EXCECUTABLE}
   imageprocessing
-  videoplayer
   Qt5::Test
 )
