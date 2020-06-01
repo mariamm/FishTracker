@@ -128,7 +128,7 @@ Client::Client(QWidget *parent)
     connect(hostCombo, &QComboBox::editTextChanged, this, &Client::enableConnectButton);
     connect(connectButton, &QAbstractButton::clicked, this, &Client::connectToServer);
     connect(tcpSocket, &QIODevice::readyRead, this, &Client::readMessage);
-    connect(tcpSocket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), this, &Client::displayError);
+    connect(tcpSocket, &QAbstractSocket::errorOccurred, this, &Client::displayError);
 
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     QGridLayout *grid = nullptr;
@@ -152,30 +152,6 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(visualizer);
     setLayout(mainLayout);
     setWindowTitle(QGuiApplication::applicationDisplayName());
-
-    QNetworkConfigurationManager manager;
-    if (manager.capabilities() & QNetworkConfigurationManager::NetworkSessionRequired)
-    {
-        // Get saved network configuration
-        QSettings settings(QSettings::UserScope, QLatin1String("QtProject"));
-        settings.beginGroup(QLatin1String("QtNetwork"));
-        const QString id = settings.value(QLatin1String("DefaultNetworkConfiguration")).toString();
-        settings.endGroup();
-
-        // If the saved network configuration is not currently discovered use the system default
-        QNetworkConfiguration config = manager.configurationFromIdentifier(id);
-        if ((config.state() & QNetworkConfiguration::Discovered) != QNetworkConfiguration::Discovered)
-        {
-            config = manager.defaultConfiguration();
-        }
-
-        networkSession = new QNetworkSession(config, this);
-        connect(networkSession, &QNetworkSession::opened, this, &Client::sessionOpened);
-
-        connectButton->setEnabled(true);
-        statusLabel->setText(tr("Opening network session."));
-        networkSession->open();
-    }
 }
 
 void Client::connectToServer()
@@ -224,25 +200,7 @@ void Client::displayError(QAbstractSocket::SocketError socketError)
 
 void Client::enableConnectButton()
 {
-    connectButton->setEnabled((!networkSession || networkSession->isOpen()) && !hostCombo->currentText().isEmpty());
-}
-
-void Client::sessionOpened()
-{
-    // Save the used configuration
-    QNetworkConfiguration config = networkSession->configuration();
-    QString id;
-    if (config.type() == QNetworkConfiguration::UserChoice)
-        id = networkSession->sessionProperty(QLatin1String("UserChoiceConfiguration")).toString();
-    else
-        id = config.identifier();
-
-    QSettings settings(QSettings::UserScope, QLatin1String("QtProject"));
-    settings.beginGroup(QLatin1String("QtNetwork"));
-    settings.setValue(QLatin1String("DefaultNetworkConfiguration"), id);
-    settings.endGroup();
-
-    enableConnectButton();
+    connectButton->setEnabled(!hostCombo->currentText().isEmpty());
 }
 
 void Client::visualizeInput(QString input)
@@ -258,13 +216,13 @@ void Client::visualizeInput(QString input)
         }
         else
         {
-            qDebug() << "Document is not an object" << endl;
+            qDebug() << "Document is not an object";
             return;
         }
     }
     else
     {
-        qDebug() << "Invalid JSON...\n" << in << Qt::endl;
+        qDebug() << "Invalid JSON.";
         return;
     }
 

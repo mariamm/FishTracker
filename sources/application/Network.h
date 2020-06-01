@@ -27,7 +27,6 @@ private slots:
 private:
     QLabel *statusLabel = nullptr;
     QTcpServer *tcpServer = nullptr;
-    QNetworkSession *networkSession = nullptr;
     QTcpSocket * m_clientConnection;
 };
 
@@ -43,7 +42,6 @@ class QLabel;
 class QLineEdit;
 class QPushButton;
 class QTcpSocket;
-class QNetworkSession;
 QT_END_NAMESPACE
 
 
@@ -59,7 +57,6 @@ private slots:
     void readMessage();
     void displayError(QAbstractSocket::SocketError socketError);
     void enableConnectButton();
-    void sessionOpened();
 
     void visualizeInput(QString input);
 
@@ -72,6 +69,4 @@ private:
     QTcpSocket *tcpSocket = nullptr;
     QDataStream in;
     QListWidget* m_trackingInput;
-
-    QNetworkSession *networkSession = nullptr;
 };
