@@ -48,6 +48,8 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
   Qt5::MultimediaWidgets
   ${OpenCV_LIBS}
   imageprocessing
+  Python3::Python
+  Python3::Module
 )
 
 if(WIN32)

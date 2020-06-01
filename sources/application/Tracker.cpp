@@ -15,18 +15,14 @@ using namespace cv;
 
 Tracker::Tracker()
 {
-    //m_outputTimer = new QTimer(this);
-    //connect(m_outputTimer, &QTimer::timeout, this, &Tracker::track);
 }
 void Tracker::start()
 {
     frameNumber = 0;
-    //m_outputTimer->start(1000);
 }
 
 void Tracker::stop()
 {
-    //m_outputTimer->stop();
 }
 
 void Tracker::processFrame(cv::Mat frame)
@@ -68,12 +64,13 @@ void Tracker::processFrame(cv::Mat frame)
     // Draw detected blobs as red circles.
     // DrawMatchesFlags::DRAW_RICH_KEYPOINTS flag ensures
     // the size of the circle corresponds to the size of blob
-    //cv::Mat tracking;
-    //drawKeypoints( frame, keypoints, tracking, Scalar(0,0,255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
 
-    emit trackedFrame(frame);
+    cv::Mat tracking;
+    drawKeypoints( frame, keypoints, tracking, Scalar(0,0,255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS );
+
+    emit trackedFrame(tracking);
     jsonTrackingOutput(keypoints);
-    QApplication::processEvents();
+    qApp->processEvents();
 }
 
 void Tracker::jsonTrackingOutput(const vector<KeyPoint> &keypoints)

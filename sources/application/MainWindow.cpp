@@ -18,8 +18,7 @@ MainWindow::MainWindow()
     msgBox.setText("Software Mode");
     msgBox.setInformativeText("Do you want to start the software as a Tracker or Visualizer?");
     QAbstractButton* trackerButton = msgBox.addButton(tr("Tracker"), QMessageBox::YesRole);
-    msgBox.addButton(tr("Visualizer"), QMessageBox::NoRole);
-
+    QAbstractButton* visualizerButton = msgBox.addButton(tr("Visualizer"), QMessageBox::YesRole);
     msgBox.exec();
 
     //init
@@ -28,7 +27,7 @@ MainWindow::MainWindow()
         m_trackerMode = true;
         initAsTracker();
     }
-    else
+    else if(msgBox.clickedButton()==visualizerButton)
     {
         m_trackerMode = false;
         initAsVisualizer();
@@ -38,7 +37,6 @@ MainWindow::MainWindow()
 void MainWindow::registerMetaTypes()
 {
     qRegisterMetaType<cv::Mat>("cv::Mat");
-    qRegisterMetaType<QPixmap>("qpixmap");
 }
 
 void MainWindow::initAsTracker()
@@ -62,8 +60,6 @@ void MainWindow::initAsTracker()
     mainLayout->addLayout(trackingLayout);
 
     m_videoPlayer = new VideoPlayer(this);
-
-    //connect(m_videoPlayer, &Player::playClicked, this, &MainWindow::onPlayButtonPressed);
 
     connect(m_videoPlayer, &VideoPlayer::play, this, &MainWindow::onPlayButtonPressed);
     connect(m_videoPlayer, &VideoPlayer::stop, this, &MainWindow::onStopTracker);
@@ -158,10 +154,6 @@ void MainWindow::onStopTracker()
 {
     if(m_mockTracker != nullptr)
         m_mockTracker->stop();
-    else
-    {
-        onStartTracker();
-    }
 
     if(m_video.isOpened())
     {
@@ -175,12 +167,14 @@ void MainWindow::onPlayButtonPressed()
 {
     if(m_mockTracker != nullptr)
         m_mockTracker->start();
-
+    else
+    {
+        onStartTracker();
+    }
     //stop video if already open
     if(m_video.isOpened())
     {
         m_video.release();
-        return;
     }
 
     if(!m_video.open(m_videoPlayer->videoPath().toStdString()))
@@ -196,10 +190,7 @@ void MainWindow::onPlayButtonPressed()
         m_video >> frame;
         if(!frame.empty())
         {
-            if(m_mockTracker)
-                m_mockTracker->processFrame(frame);
-            else
-                onNewTrackedFrame(frame);
+            m_mockTracker->processFrame(frame);
         }
         qApp->processEvents();
     }

@@ -11,6 +11,7 @@
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QMediaPlayer>
+#include <QApplication>
 
 VideoPlayer::VideoPlayer(QWidget *parent) : QWidget(parent)
 {
@@ -56,6 +57,7 @@ void VideoPlayer::setFrame(const QPixmap &frame)
     int w = 676;
     int h = 380;
     m_videoLabel->setPixmap(frame.scaled(w,h,Qt::KeepAspectRatio));
+    qApp->processEvents();
 }
 
 void VideoPlayer::playClicked()

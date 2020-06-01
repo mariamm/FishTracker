@@ -14,14 +14,13 @@ class Tracker : public QObject
     Q_OBJECT
     public:
         Tracker();
-
         void start();
         void stop();
 
         void processFrame(cv::Mat frame);
     private:
-        QTimer *m_outputTimer;
         int frameNumber = 0;
+
     private slots:
         void jsonTrackingOutput(const std::vector<cv::KeyPoint> &keypoints);
 

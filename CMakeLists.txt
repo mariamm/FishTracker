@@ -24,15 +24,22 @@ set(IMAGES_PATH "${RESOURCES_PATH}/Images")
 # Videos path
 set(VIDEOS_PATH "${RESOURCES_PATH}/Videos")
 
-# Compiler-specific flags
 # Visual Studio
 if(MSVC)
-  # Do not treat warnings as errors
-  add_definitions("/W4")
-  # Generate PDBs in Release build
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
   set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
   set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
+endif()
+##########
+# Pyhton #
+##########
+find_package (Python3 3.7.7 EXACT REQUIRED COMPONENTS Interpreter Development)
+if(NOT Python3_FOUND)
+  message(FATAL_ERROR "Python could not be found.")
+else()
+  message(STATUS "Python found: " ${Python3_EXECUTABLE})
+  message(STATUS "Python libraries found: " ${Python3_LIBRARIES})
+  include_directories(${Python_INCLUDE_DIRS})
 endif()
 
 ##########
