@@ -8,6 +8,7 @@
 cmake -D CMAKE_BUILD_TYPE="DEBUG"   
 -D CMAKE_PREFIX_PATH="*qt path to compiler mscv or clang*"  
 -D OpenCV_DIR="*open cv config cmake path*"  
+-D Python3_ROOT_DIR="*path to python3*"
 -D ARCHITECTURE=x64  
 -G "*Cmake generator like Visual Studio 15 2017 or Xcode*"  
 -D CMAKE_INSTALL_PREFIX="*install folder path*" .. 
@@ -18,7 +19,7 @@ create testing framework
 logging  
 install for windows/mac/linux  
 #### 2d tracking
-integrate a tracker!  
+integrate a python tracker  
 tracking fish from videos  
 live tracking (with camera feed)  
 output centroid coordinates, with ids, timestamp  
