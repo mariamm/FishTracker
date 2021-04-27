@@ -61,15 +61,11 @@ void Server::onClientDisconnected()
 
 void Server::sendMessage(const QString &msg)
 {
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_10);
-
-    out << msg;
-
+    QByteArray ba = msg.toUtf8();
+    const char* c_str2 = ba.data();
     if(m_clientConnection != nullptr)
     {
-        m_clientConnection->write(block);
+        m_clientConnection->write(c_str2);
     }
 }
 
