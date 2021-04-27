@@ -8,7 +8,6 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "imageprocessing_export.h"
 
 
 /*
@@ -48,15 +47,15 @@ namespace Common
         Andy Maloney <asmaloney@gmail.com>
         https://asmaloney.com/2013/11/code/converting-between-cvmat-and-qimage-or-qpixmap
     **/
-    IMAGEPROCESSING_EXPORT QImage  cvMatToQImage(const cv::Mat &inMat);
+    QImage  cvMatToQImage(const cv::Mat &inMat);
 
-    IMAGEPROCESSING_EXPORT QPixmap cvMatToQPixmap(const cv::Mat &inMat);
-
-    // cloneData false if inPixmap exists for the lifetime of the resulting cv::Mat
-    IMAGEPROCESSING_EXPORT cv::Mat qImageToCvMat(const QImage &inImage, bool inCloneImageData = true);
+    QPixmap cvMatToQPixmap(const cv::Mat &inMat);
 
     // cloneData false if inPixmap exists for the lifetime of the resulting cv::Mat
-    IMAGEPROCESSING_EXPORT cv::Mat qPixmapToCvMat(const QPixmap &inPixmap, bool cloneData = true);
+    cv::Mat qImageToCvMat(const QImage &inImage, bool inCloneImageData = true);
+
+    // cloneData false if inPixmap exists for the lifetime of the resulting cv::Mat
+    cv::Mat qPixmapToCvMat(const QPixmap &inPixmap, bool cloneData = true);
 
     static QMap<QImage::Format, QString>   sImageFormatEnumMap = {
                                                                     { QImage::Format::Format_Invalid, "Format_Invalid" },

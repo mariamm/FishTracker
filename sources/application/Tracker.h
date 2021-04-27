@@ -9,11 +9,11 @@
 
 #include <opencv2/opencv.hpp>
 
-class Tracker : public QObject
+class BasicTracker : public QObject
 {
     Q_OBJECT
     public:
-        Tracker();
+        BasicTracker();
         void start();
         void stop();
 

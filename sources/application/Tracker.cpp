@@ -13,19 +13,19 @@
 using namespace std;
 using namespace cv;
 
-Tracker::Tracker()
+BasicTracker::BasicTracker()
 {
 }
-void Tracker::start()
+void BasicTracker::start()
 {
     frameNumber = 0;
 }
 
-void Tracker::stop()
+void BasicTracker::stop()
 {
 }
 
-void Tracker::processFrame(cv::Mat frame)
+void BasicTracker::processFrame(cv::Mat frame)
 {
     frameNumber++;
 
@@ -73,7 +73,7 @@ void Tracker::processFrame(cv::Mat frame)
     qApp->processEvents();
 }
 
-void Tracker::jsonTrackingOutput(const vector<KeyPoint> &keypoints)
+void BasicTracker::jsonTrackingOutput(const vector<KeyPoint> &keypoints)
 {
     //QDateTime t = QDateTime::currentDateTime();
     int id=0;

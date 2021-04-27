@@ -34,7 +34,7 @@ public:
         Server *m_trackerServer = nullptr;
         Client *m_visualizerClient = nullptr;
 
-        Tracker *m_mockTracker = nullptr;
+        BasicTracker *m_mockTracker = nullptr;
         VideoPlayer *m_videoPlayer = nullptr;
         cv::VideoCapture m_video;
 

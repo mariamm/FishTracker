@@ -125,9 +125,9 @@ void MainWindow::onNewTrackedFrame(cv::Mat frame)
 
 void MainWindow::onStartTracker()
 {
-    m_mockTracker = new Tracker();
-    connect(m_mockTracker, &Tracker::output, this, &MainWindow::onNewTrackingOutput);
-    connect(m_mockTracker, &Tracker::trackedFrame, this, &MainWindow::onNewTrackedFrame);
+    m_mockTracker = new BasicTracker();
+    connect(m_mockTracker, &BasicTracker::output, this, &MainWindow::onNewTrackingOutput);
+    connect(m_mockTracker, &BasicTracker::trackedFrame, this, &MainWindow::onNewTrackedFrame);
 
     //Prompt to start software as tracker or visualizer
     QMessageBox msgBox;
@@ -152,6 +152,7 @@ void MainWindow::onStartTracker()
 
 void MainWindow::onStopTracker()
 {
+    /*
     if(m_mockTracker != nullptr)
         m_mockTracker->stop();
 
@@ -159,7 +160,10 @@ void MainWindow::onStopTracker()
     {
         m_video.release();
         return;
-    }
+    }*/
+
+
+    m_trackerServer->sendMessage("Hello hello");
 
 }
 

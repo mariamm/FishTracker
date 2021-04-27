@@ -47,7 +47,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
   Qt5::Multimedia
   Qt5::MultimediaWidgets
   ${OpenCV_LIBS}
-  imageprocessing
   Python3::Python
   Python3::Module
 )

@@ -33,7 +33,7 @@ endif()
 ##########
 # Pyhton #
 ##########
-find_package (Python3 3.7.7 EXACT REQUIRED COMPONENTS Interpreter Development)
+find_package (Python3 REQUIRED COMPONENTS Interpreter Development)
 if(NOT Python3_FOUND)
   message(FATAL_ERROR "Python could not be found.")
 else()
@@ -91,7 +91,7 @@ endif()
 ########
 # Qt 5 #
 ########
-find_package(Qt5 5.14 REQUIRED COMPONENTS Core Widgets Quick OpenGL 3DCore PrintSupport Gui Xml Network Multimedia MultimediaWidgets Test)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Quick OpenGL 3DCore PrintSupport Gui Xml Network Multimedia MultimediaWidgets Test)
 
 # Save Qt paths
 get_target_property(QtCore_LOCATION Qt5::Core LOCATION)
@@ -109,14 +109,13 @@ message(STATUS "Qt plugins directory: " ${QT_PLUGINS_DIR})
 # OpenCV #
 ##########
 set(OpenCV_STATIC OFF)
-find_package(OpenCV 4.3.0)
+find_package(OpenCV)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 ######################
 # Application
 ######################
 add_subdirectory(sources/application)
-add_subdirectory(sources/libraries/imageprocessing)
 add_subdirectory(sources/tests)
 
 # Add platform-specific files

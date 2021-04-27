@@ -1,15 +1,11 @@
 # Copy library files to installed directory
 install(TARGETS
     ${CMAKE_PROJECT_NAME}
-    imageprocessing
-    videoplayer
     DESTINATION .
     CONFIGURATIONS Debug
 )
 install(TARGETS
     ${CMAKE_PROJECT_NAME}
-    imageprocessing
-    videoplayer
     DESTINATION .
     CONFIGURATIONS Release
 )
