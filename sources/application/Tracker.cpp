@@ -75,23 +75,13 @@ void BasicTracker::processFrame(cv::Mat frame)
 
 void BasicTracker::jsonTrackingOutput(const vector<KeyPoint> &keypoints)
 {
-    //QDateTime t = QDateTime::currentDateTime();
-    int id=0;
+    if (keypoints.empty())
+        return;
 
-    QJsonObject json;
-    QJsonArray jsonArray;
-    for(KeyPoint p: keypoints)
-    {
-        QJsonObject object;
-        object["id"] = id;
-        object["x"] = p.pt.x;
-        object["y"] = p.pt.y;
-        object["framenumber"] = frameNumber;
-        jsonArray.append(object);
-        id++;
-    }
-    json["objects"] = jsonArray;
-    QJsonDocument doc(json);
+    QJsonObject object;
+    object["x"] = keypoints[0].pt.x;
+    object["y"] = keypoints[0].pt.y;
+    QJsonDocument doc(object);
     QString o(doc.toJson(QJsonDocument::Compact));
 
     emit output(o);

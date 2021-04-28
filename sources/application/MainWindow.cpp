@@ -152,7 +152,6 @@ void MainWindow::onStartTracker()
 
 void MainWindow::onStopTracker()
 {
-    /*
     if(m_mockTracker != nullptr)
         m_mockTracker->stop();
 
@@ -160,11 +159,7 @@ void MainWindow::onStopTracker()
     {
         m_video.release();
         return;
-    }*/
-
-
-    m_trackerServer->sendMessage("Hello hello");
-
+    }
 }
 
 void MainWindow::onPlayButtonPressed()
