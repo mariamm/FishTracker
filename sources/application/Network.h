@@ -67,6 +67,5 @@ private:
     QLabel *visualizer = nullptr;
 
     QTcpSocket *tcpSocket = nullptr;
-    QDataStream in;
     QListWidget* m_trackingInput;
 };

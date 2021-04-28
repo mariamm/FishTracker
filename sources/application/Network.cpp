@@ -62,10 +62,10 @@ void Server::onClientDisconnected()
 void Server::sendMessage(const QString &msg)
 {
     QByteArray ba = msg.toUtf8();
-    const char* c_str2 = ba.data();
+    const char* c_str = ba.data();
     if(m_clientConnection != nullptr)
     {
-        m_clientConnection->write(c_str2);
+        m_clientConnection->write(c_str);
     }
 }
 
@@ -105,7 +105,6 @@ Client::Client(QWidget *parent)
             hostCombo->addItem(ipAddressesList.at(i).toString());
     }
 
-
     auto hostLabel = new QLabel(tr("&Server name:"));
     hostLabel->setBuddy(hostCombo);
 
@@ -114,13 +113,9 @@ Client::Client(QWidget *parent)
     connectButton->setDefault(true);
     connectButton->setEnabled(true);
 
-
     auto buttonBox = new QDialogButtonBox;
     buttonBox->addButton(connectButton, QDialogButtonBox::ActionRole);
-
-    in.setDevice(tcpSocket);
-    in.setVersion(QDataStream::Qt_4_0);
-
+    
     connect(hostCombo, &QComboBox::editTextChanged, this, &Client::enableConnectButton);
     connect(connectButton, &QAbstractButton::clicked, this, &Client::connectToServer);
     connect(tcpSocket, &QIODevice::readyRead, this, &Client::readMessage);
@@ -159,13 +154,8 @@ void Client::connectToServer()
 
 void Client::readMessage()
 {
-    in.startTransaction();
-
-    QString nextInput;
-    in >> nextInput;
-
-    if (!in.commitTransaction())
-        return;
+    QByteArray ba = tcpSocket->readAll();
+    QString nextInput(ba.data());
 
     m_trackingInput->addItem(nextInput);
     m_trackingInput->scrollToBottom();
