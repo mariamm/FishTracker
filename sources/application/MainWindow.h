@@ -24,13 +24,6 @@ public:
 
     private:
         bool m_trackerMode;
-        //File Menu
-        QMenu *m_fileMenu = nullptr;;
-        QAction *m_openAction= nullptr;;
-        QAction *m_saveAction= nullptr;;
-        QAction *m_saveAsAction= nullptr;;
-        QAction *m_exitAction= nullptr;;
-
         Server *m_trackerServer = nullptr;
         Client *m_visualizerClient = nullptr;
 
@@ -52,14 +45,6 @@ public:
         void initAsTracker();
         void initAsVisualizer();
 
-        void createActions();
-        void createMenus();
-        void updateActions();
-
-        //File
-        bool loadFile(const QString &);
-        bool saveFile(const QString &fileName);
-
     protected:
         void closeEvent(QCloseEvent *event);
 
@@ -72,6 +57,4 @@ public:
         void onStopTracker();
         void onPlayButtonPressed();
 
-        //Help
-        void about(){}
 };
