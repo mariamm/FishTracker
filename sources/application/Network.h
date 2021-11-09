@@ -2,11 +2,11 @@
 
 #include <QObject>
 #include <QString>
+#include <QHostAddress>
 
 QT_BEGIN_NAMESPACE
 class QLabel;
-class QTcpServer;
-class QTcpSocket;
+class QUdpSocket;
 class QNetworkSession;
 QT_END_NAMESPACE
 
@@ -18,22 +18,23 @@ class Server : public QObject
 public:
     explicit Server();
     void sendMessage(const QString &msg);
-    bool m_clientConnected;
+    void writeUdp(const QString& msg);
+
 private slots:
-    void sessionOpened();
-    void onNewClientConnected();
-    void onClientDisconnected();
+    void initUdpSocket();
+    void readPendingDatagrams();
 
 private:
     QLabel *statusLabel = nullptr;
-    QTcpServer *tcpServer = nullptr;
-    QTcpSocket * m_clientConnection;
+    QUdpSocket *m_udpSocket = nullptr;
+    QHostAddress m_address;
+    quint16 m_port;
+
 };
 
 
 #include <QDataStream>
 #include <QDialog>
-#include <QTcpSocket>
 #include <QListWidget>
 
 QT_BEGIN_NAMESPACE
@@ -55,7 +56,7 @@ public:
 private slots:
     void connectToServer();
     void readMessage();
-    void displayError(QAbstractSocket::SocketError socketError);
+    void displayError();
     void enableConnectButton();
 
     void visualizeInput(QString input);
@@ -65,7 +66,6 @@ private:
     QLabel *statusLabel = nullptr;
     QPushButton *connectButton = nullptr;
     QLabel *visualizer = nullptr;
-
-    QTcpSocket *tcpSocket = nullptr;
+    QUdpSocket* m_udpSocket = nullptr;
     QListWidget* m_trackingInput;
 };

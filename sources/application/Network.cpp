@@ -13,67 +13,42 @@
 
 Server::Server()
 {
-    m_clientConnected = false;
-    m_clientConnection = nullptr;
-    sessionOpened();
+    initUdpSocket();
 }
 
-void Server::sessionOpened()
+void Server::initUdpSocket()
 {
-    tcpServer = new QTcpServer(this);
-    if (!tcpServer->listen(QHostAddress::Any, 56253))
-    {
-        QMessageBox::critical(NULL, tr("Tracking Server"), tr("Unable to start the server: %1.") .arg(tcpServer->errorString()));
-        return;
-    }
-    QString ipAddress;
-    QList<QHostAddress> ipAddressesList = QNetworkInterface::allAddresses();
-    // use the first non-localhost IPv4 address
-    for (int i = 0; i < ipAddressesList.size(); ++i)
-    {
-        if (ipAddressesList.at(i) != QHostAddress::LocalHost && ipAddressesList.at(i).toIPv4Address())
-        {
-            ipAddress = ipAddressesList.at(i).toString();
-            break;
-        }
-    }
-    // if we did not find one, use IPv4 localhost
-    if (ipAddress.isEmpty())
-    {
-        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-    }
+    m_udpSocket = new QUdpSocket(this);
+    m_udpSocket->bind(QHostAddress::Any, 56253);
 
-    connect(tcpServer, &QTcpServer::newConnection, this, &Server::onNewClientConnected);
+    connect(m_udpSocket, &QUdpSocket::readyRead, this, &Server::readPendingDatagrams);
 }
 
-void Server::onNewClientConnected()
+void Server::readPendingDatagrams()
 {
-    m_clientConnected = true;
-    m_clientConnection = tcpServer->nextPendingConnection();
-    connect(m_clientConnection, &QTcpSocket::disconnected, this, &Server::onClientDisconnected);
-}
-
-void Server::onClientDisconnected()
-{
-    m_clientConnection->deleteLater();
-    m_clientConnection = nullptr;
+    while (m_udpSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = m_udpSocket->receiveDatagram();
+        m_port = datagram.senderPort();
+        m_address = datagram.senderAddress();
+    }
 }
 
 void Server::sendMessage(const QString &msg)
 {
+    writeUdp(msg);
+}
+
+void Server::writeUdp(const QString& msg)
+{
     QByteArray ba = msg.toUtf8();
     const char* c_str = ba.data();
-    if(m_clientConnection != nullptr)
-    {
-        m_clientConnection->write(c_str);
-    }
+    m_udpSocket->writeDatagram(c_str, ba.size(), m_address, m_port);
 }
 
 Client::Client(QWidget *parent)
     : QWidget(parent)
     , hostCombo(new QComboBox)
     , connectButton(new QPushButton(tr("Connect to Tracking Server")))
-    , tcpSocket(new QTcpSocket(this))
 {
 
     hostCombo->setEditable(true);
@@ -95,13 +70,7 @@ Client::Client(QWidget *parent)
     // add non-localhost addresses
     for (int i = 0; i < ipAddressesList.size(); ++i)
     {
-        if (!ipAddressesList.at(i).isLoopback())
-            hostCombo->addItem(ipAddressesList.at(i).toString());
-    }
-    // add localhost addresses
-    for (int i = 0; i < ipAddressesList.size(); ++i)
-    {
-        if (ipAddressesList.at(i).isLoopback())
+        if (!ipAddressesList.at(i).isGlobal())
             hostCombo->addItem(ipAddressesList.at(i).toString());
     }
 
@@ -118,8 +87,6 @@ Client::Client(QWidget *parent)
     
     connect(hostCombo, &QComboBox::editTextChanged, this, &Client::enableConnectButton);
     connect(connectButton, &QAbstractButton::clicked, this, &Client::connectToServer);
-    connect(tcpSocket, &QIODevice::readyRead, this, &Client::readMessage);
-    connect(tcpSocket, &QAbstractSocket::errorOccurred, this, &Client::displayError);
 
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     QGridLayout *grid = nullptr;
@@ -143,44 +110,36 @@ Client::Client(QWidget *parent)
     mainLayout->addWidget(visualizer);
     setLayout(mainLayout);
     setWindowTitle(QGuiApplication::applicationDisplayName());
+
+    m_udpSocket = new QUdpSocket(this);
+    m_udpSocket->bind(QHostAddress::Any, 56254);
+    connect(m_udpSocket, &QUdpSocket::readyRead,
+        this, &Client::readMessage);
 }
 
 void Client::connectToServer()
 {
-    connectButton->setEnabled(false);
-    tcpSocket->abort();
-    tcpSocket->connectToHost(hostCombo->currentText(), 56253);
+    int ret = m_udpSocket->writeDatagram("Hello", 5, QHostAddress(hostCombo->currentText()), 56253);
+    if (ret == -1)
+        displayError();
 }
 
 void Client::readMessage()
 {
-    QByteArray ba = tcpSocket->readAll();
-    QString nextInput(ba.data());
+    while (m_udpSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = m_udpSocket->receiveDatagram();
+        QByteArray ba = datagram.data();
+        QString nextInput(ba.data());
 
-    m_trackingInput->addItem(nextInput);
-    m_trackingInput->scrollToBottom();
-    visualizeInput(nextInput);
+        m_trackingInput->addItem(nextInput);
+        m_trackingInput->scrollToBottom();
+        visualizeInput(nextInput);
+    }
 }
 
-void Client::displayError(QAbstractSocket::SocketError socketError)
+void Client::displayError()
 {
-    switch (socketError)
-    {
-        case QAbstractSocket::RemoteHostClosedError:
-            break;
-        case QAbstractSocket::HostNotFoundError:
-            QMessageBox::information(this, tr("Client"),
-                                     tr("The host was not found. Please check the host name and port settings."));
-            break;
-        case QAbstractSocket::ConnectionRefusedError:
-            QMessageBox::information(this, tr("Client"),
-                                     tr("The connection was refused by the peer. Make sure the server is running, "
-                                        "and check that the host name and port settings are correct."));
-            break;
-        default:
-            QMessageBox::information(this, tr("Client"), tr("The following error occurred: %1.") .arg(tcpSocket->errorString()));
-    }
-
+    QMessageBox::information(this, tr("Client"), tr("Failed to connect!"));
     connectButton->setEnabled(true);
 }
 
@@ -232,7 +191,7 @@ void Client::visualizeInput(QString input)
         y = y/4.;
         QPainter painter(&background);
         painter.setPen(Qt::red);
-        painter.drawEllipse(QPointF(x,y), 15, 15);
+        painter.drawEllipse(QPointF(x,y), 35, 35);
         painter.end();
     }
     visualizer->setPixmap(background);

@@ -5,6 +5,7 @@
 #include <QPixmap>
 #include <QLayout>
 #include <QAbstractButton>
+#include <QHostInfo>
 
 #include "MainWindow.h"
 
@@ -53,6 +54,13 @@ void MainWindow::initAsTracker()
     QPushButton *stopB = new QPushButton("Stop");
     connect(stopB, &QPushButton::clicked, this, &MainWindow::onStopTracker);
 
+    QLabel* ipAddress = new QLabel();
+    QHostInfo info = QHostInfo::fromName(QHostInfo::localHostName());
+    if (!info.addresses().isEmpty()) {
+        ipAddress->setText(info.addresses().first().toString());
+    }
+
+    trackingLayout->addWidget(ipAddress);
     trackingLayout->addWidget(startB);
     trackingLayout->addWidget(stopB);
     trackingLayout->addWidget(m_trackingOutputList);
