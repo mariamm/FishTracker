@@ -19,6 +19,9 @@ install(FILES
   $<TARGET_FILE:Qt5::3DCore>
   $<TARGET_FILE:Qt5::OpenGL>
   $<TARGET_FILE:Qt5::Quick>
+  $<TARGET_FILE:Qt5::Multimedia>
+  $<TARGET_FILE:Qt5::MultimediaWidgets>
+  $<TARGET_FILE:Qt5::Network>
   qt.conf
   DESTINATION .
   CONFIGURATIONS Release
@@ -31,6 +34,9 @@ install(FILES
   $<TARGET_FILE:Qt5::3DCore>
   $<TARGET_FILE:Qt5::OpenGL>
   $<TARGET_FILE:Qt5::Quick>
+  $<TARGET_FILE:Qt5::Multimedia>
+  $<TARGET_FILE:Qt5::MultimediaWidgets>
+  $<TARGET_FILE:Qt5::Network>
   qt.conf
   DESTINATION .
   CONFIGURATIONS Debug
@@ -65,6 +71,8 @@ install(FILES
 )
 
 # OpenCV DLLs
+
+message(STATUS "opencv library directory: " ${OPENCV_DLLS_RELEASE})
 install(FILES
   ${OPENCV_DLLS_RELEASE}
   DESTINATION .

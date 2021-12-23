@@ -41,6 +41,9 @@ install(FILES
   $<TARGET_FILE:Qt5::3DCore>
   $<TARGET_FILE:Qt5::OpenGL>
   $<TARGET_FILE:Qt5::Quick>
+  $<TARGET_FILE:Qt5::Multimedia>
+  $<TARGET_FILE:Qt5::MultimediaWidgets>
+  $<TARGET_FILE:Qt5::Network>
   qt.conf
   DESTINATION .
   CONFIGURATIONS Release
@@ -53,6 +56,9 @@ install(FILES
   $<TARGET_FILE:Qt5::3DCore>
   $<TARGET_FILE:Qt5::OpenGL>
   $<TARGET_FILE:Qt5::Quick>
+  $<TARGET_FILE:Qt5::Multimedia>
+  $<TARGET_FILE:Qt5::MultimediaWidgets>
+  $<TARGET_FILE:Qt5::Network>
   qt.conf
   DESTINATION .
   CONFIGURATIONS Debug
